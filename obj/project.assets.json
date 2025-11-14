@@ -8,19 +8,19 @@
     "net8.0": []
   },
   "packageFolders": {
-    "/home/luke/.nuget/packages/": {}
+    "C:\\Users\\Nebula PC\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/luke/Documents/Personal Programming/TubePulse/ConsoleApp.csproj",
+      "projectUniqueName": "C:\\Users\\Nebula PC\\Documents\\Programming\\Github\\TubePulse\\ConsoleApp.csproj",
       "projectName": "ConsoleApp",
-      "projectPath": "/home/luke/Documents/Personal Programming/TubePulse/ConsoleApp.csproj",
-      "packagesPath": "/home/luke/.nuget/packages/",
-      "outputPath": "/home/luke/Documents/Personal Programming/TubePulse/obj/",
+      "projectPath": "C:\\Users\\Nebula PC\\Documents\\Programming\\Github\\TubePulse\\ConsoleApp.csproj",
+      "packagesPath": "C:\\Users\\Nebula PC\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Nebula PC\\Documents\\Programming\\Github\\TubePulse\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/luke/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Nebula PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -38,7 +38,13 @@
         "warnAsError": [
           "NU1605"
         ]
-      }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -54,12 +60,30 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.22, 8.0.22]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[8.0.22, 8.0.22]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.22, 8.0.22]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.22, 8.0.22]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.121/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

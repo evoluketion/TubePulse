@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "BnOyGdnS2uuhdErjLEavpJB1nEBbfAS9EzGjYXSraBsKF0di8M06YfsJXBV08/H5hyGk6uQu6o8GobVb79zyAA==",
+  "dgSpecHash": "xiQuEQybS28=",
   "success": true,
-  "projectFilePath": "/home/luke/Documents/Personal Programming/TubePulse/ConsoleApp.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\Nebula PC\\Documents\\Programming\\Github\\TubePulse\\ConsoleApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Nebula PC\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.22\\microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\Nebula PC\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.22\\microsoft.windowsdesktop.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\Nebula PC\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.22\\microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\Nebula PC\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.22\\microsoft.netcore.app.host.win-x64.8.0.22.nupkg.sha512"
+  ],
   "logs": []
 }

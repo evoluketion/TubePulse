@@ -10,22 +10,29 @@ namespace TubePulse
     {
         static async Task Main()
         {
-            const string channelUrl = "https://www.youtube.com/@NoCopyrightSounds"; // Example URL
+            const string url = "https://www.youtube.com/@NoCopyrightSounds"; // Example URL
 
-            await getVideos(channelUrl);
+            await getVideos(url);
         }
-
-        private static async Task getVideos(string channelUrl)
+        
+        private static async Task getVideos(string url)
         {
             var serializer = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
 
+            var argumentList = new List<string>
+            {
+                "-j",
+                "--flat-playlist",
+                "--match-filter \"original_url!*=/shorts/ & url!*=/shorts/\"",
+                $"\"{url}\""
+            };
             var startInfo = new ProcessStartInfo
             {
                 FileName = "yt-dlp",
-                Arguments = $"-j --flat-playlist \"{channelUrl}\"",
+                Arguments = string.Join(" ", argumentList),
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -50,10 +57,12 @@ namespace TubePulse
 
                 Console.WriteLine($"Exit code: {process.ExitCode}");
                 Console.WriteLine($"Parsed {videos.Count} videos:");
-                foreach (var video in videos)
-                {
-                    Console.WriteLine($"- {video.Title} ({video.Url})");
-                }
+
+                // foreach (var video in videos)
+                // {
+                //     Console.WriteLine($"- {video.Title} ({video.Url})");
+                // }
+                
                 Console.WriteLine("STDERR:");
                 Console.WriteLine(error);
             }
