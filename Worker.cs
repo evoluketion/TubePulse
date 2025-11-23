@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +16,12 @@ namespace TubePulse
     {
         private const string CacheFile = "videoCache.json";
         private HashSet<string> processedVideoIds;
+        private readonly TubePulseSettings settings;
+
+        public Worker(IOptions<TubePulseSettings> options)
+        {
+            settings = options.Value;
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -25,8 +32,8 @@ namespace TubePulse
             if (isFirstRun)
             {
                 Console.WriteLine("First run: Fetching all existing videos and caching them...");
-                var urls = File.ReadAllLines("channelUrls.txt");
-                await FetchAndCacheAllVideos(urls.ToList());
+                var urls = settings.ChannelUrls ?? new List<string>();
+                await FetchAndCacheAllVideos(urls);
             }
             else
             {
@@ -36,8 +43,8 @@ namespace TubePulse
             // Start monitoring for new videos
             while (!stoppingToken.IsCancellationRequested)
             {
-                var urls = File.ReadAllLines("channelUrls.txt");
-                await CheckAndDownloadNewVideos(urls.ToList());
+                var urls = settings.ChannelUrls ?? new List<string>();
+                await CheckAndDownloadNewVideos(urls);
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
         }
@@ -195,7 +202,10 @@ namespace TubePulse
                 RedirectStandardOutput = false,
                 RedirectStandardError = false,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = string.IsNullOrWhiteSpace(settings.DownloadPath)
+                    ? Environment.CurrentDirectory
+                    : settings.DownloadPath
             };
 
             using (var process = new Process())
