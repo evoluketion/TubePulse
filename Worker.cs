@@ -9,12 +9,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TubePulse.models;
+using TubePulse.Utils;
 
 namespace TubePulse
 {
     public class Worker : BackgroundService
     {
-        private const string CacheFileExtension = ".json";
         private HashSet<string> processedVideoIds;
         private readonly TubePulseSettings settings;
 
@@ -28,6 +28,12 @@ namespace TubePulse
             await Task.Delay(5000); // Starting delay to offset application starting debug logs
             var channels = settings.Channels;
 
+            if (!checkPathsSpecified(settings.DownloadPath, settings.CachePath))
+            {
+                Console.WriteLine("Error: DownloadPath and CachePath must be specified in appsettings.json.");
+                return;
+            }
+
             Console.WriteLine("\nBeginning Processing.");
             Console.WriteLine("---------------------------------------------------------\n");
             while (!stoppingToken.IsCancellationRequested)
@@ -37,7 +43,7 @@ namespace TubePulse
                     var channelName = channel.Name;
                     var channelUrl = channel.Url;
 
-                    processedVideoIds = LoadCache(channelName);
+                    processedVideoIds = CacheUtils.LoadCache(channelName, settings.CachePath);
                     bool isFirstRun = processedVideoIds.Count == 0;
 
                     if (isFirstRun)
@@ -53,47 +59,14 @@ namespace TubePulse
                     await CheckAndDownloadNewVideos(channel.Url, channel.Name);
                 }
 
-                await Task.Delay(TimeSpan.FromHours(settings.pollingTimeout), stoppingToken);
+                Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.pollingTimeoutHours} hours before next check...");
+                await Task.Delay(TimeSpan.FromHours(settings.pollingTimeoutHours), stoppingToken);
             }
         }
 
-        private string GetCacheFilePath(string channelName)
+        private static bool checkPathsSpecified(string downloadPath, string cachePath)
         {
-            var invalidChars = Path.GetInvalidFileNameChars();
-            return $"{settings.CachePath}/videoCache_{channelName}{CacheFileExtension}";
-        }
-
-        private HashSet<string> LoadCache(string channelName)
-        {
-            var cacheFile = GetCacheFilePath(channelName);
-            if (File.Exists(cacheFile))
-            {
-                try
-                {
-                    string json = File.ReadAllText(cacheFile);
-                    var cachedIds = JsonSerializer.Deserialize<List<string>>(json);
-                    return new HashSet<string>(cachedIds ?? new List<string>());
-                }
-                catch
-                {
-                    Console.WriteLine("Error loading cache for channel, starting fresh.");
-                }
-            }
-            return new HashSet<string>();
-        }
-
-        private void SaveCache(string channelName)
-        {
-            var cacheFile = GetCacheFilePath(channelName);
-            try
-            {
-                string json = JsonSerializer.Serialize(processedVideoIds.ToList());
-                File.WriteAllText(cacheFile, json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error saving cache for channel: {ex.Message}");
-            }
+            return !string.IsNullOrWhiteSpace(downloadPath) && !string.IsNullOrWhiteSpace(cachePath);
         }
 
         private async Task FetchAndCacheAllVideos(string channelUrl, string channelName)
@@ -104,7 +77,7 @@ namespace TubePulse
             {
                 processedVideoIds.Add(video.Id);
             }
-            SaveCache(channelName);
+            CacheUtils.SaveCache(channelName, settings.CachePath, processedVideoIds);
             Console.WriteLine($"Cached {processedVideoIds.Count} video IDs for channel.");
         }
 
@@ -122,7 +95,7 @@ namespace TubePulse
                     await DownloadVideo(video.Url, channelName);
                     processedVideoIds.Add(video.Id);
                 }
-                SaveCache(channelName);
+                CacheUtils.SaveCache(channelName, settings.CachePath, processedVideoIds);
             }
             else
             {
@@ -206,10 +179,7 @@ namespace TubePulse
 
             Console.WriteLine($"Executing: yt-dlp {string.Join(" ", argumentList)}");
 
-            var downloadPath = string.IsNullOrWhiteSpace(settings.DownloadPath)
-                    ? Environment.CurrentDirectory
-                    : settings.DownloadPath;
-            downloadPath += $"/{channelName}";
+            var downloadPath = $"{settings.DownloadPath}/{channelName}";
             Directory.CreateDirectory(downloadPath);
 
             var startInfo = new ProcessStartInfo
