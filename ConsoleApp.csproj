@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>TubePulse</RootNamespace>
+    <AssemblyName>TubePulse</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
