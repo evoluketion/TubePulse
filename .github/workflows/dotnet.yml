@@ -9,13 +9,10 @@ permissions:
 
 jobs:
   build:
-
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-
     runs-on: ${{ matrix.os }}
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -31,7 +28,25 @@ jobs:
     - name: Archive Release
       shell: pwsh
       run: Compress-Archive -Path ./publish/* -DestinationPath TubePulse-${{ matrix.os }}.zip
-    - name: Upload Release Asset
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: TubePulse-${{ matrix.os }}
+        path: TubePulse-${{ matrix.os }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        pattern: TubePulse-*
+        merge-multiple: true
+    - name: Display structure of downloaded files
+      run: ls -R artifacts
+    - name: Upload Release Assets
       uses: softprops/action-gh-release@v1
       with:
-        files: TubePulse-${{ matrix.os }}.zip
+        files: artifacts/*.zip
