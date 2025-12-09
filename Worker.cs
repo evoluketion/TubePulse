@@ -27,6 +27,7 @@ namespace TubePulse
         {
             await Task.Delay(5000); // Starting delay to offset application starting debug logs
             var channels = settings.Channels;
+            var defaultDownloadResolution = settings.DownloadResolution;
 
             if (!checkPathsSpecified(settings.DownloadPath, settings.CachePath))
             {
@@ -42,6 +43,10 @@ namespace TubePulse
                 {
                     var channelName = channel.Name;
                     var channelUrl = channel.Url;
+                    if (channel.DownloadResolution != null )
+                    {
+                        defaultDownloadResolution = channel.DownloadResolution;
+                    };
 
                     processedVideoIds = CacheUtils.LoadCache(channelName, settings.CachePath);
                     bool isFirstRun = processedVideoIds.Count == 0;
@@ -56,11 +61,11 @@ namespace TubePulse
                         Console.WriteLine($"Loaded {processedVideoIds.Count} cached video IDs for channel {channelName}.");
                     }
 
-                    await CheckAndDownloadNewVideos(channel.Url, channel.Name);
+                    await CheckAndDownloadNewVideos(channel.Url, channel.Name, defaultDownloadResolution);
                 }
 
-                Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.pollingTimeoutHours} hours before next check...");
-                await Task.Delay(TimeSpan.FromHours(settings.pollingTimeoutHours), stoppingToken);
+                Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.PollingTimeoutHours} hours before next check...");
+                await Task.Delay(TimeSpan.FromHours(settings.PollingTimeoutHours), stoppingToken);
             }
         }
 
@@ -81,9 +86,9 @@ namespace TubePulse
             Console.WriteLine($"Cached {processedVideoIds.Count} video IDs for channel.");
         }
 
-        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName)
+        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution)
         {
-            Console.WriteLine($"Checking for new videos in last 24 hours for: {channelUrl}");
+            Console.WriteLine($"Checking for new videos for: {channelUrl}");
             var recentVideos = await GetVideos(channelUrl, "today-1day");
             var newVideos = recentVideos.Where(v => !processedVideoIds.Contains(v.Id)).ToList();
 
@@ -92,7 +97,7 @@ namespace TubePulse
                 Console.WriteLine($"Found {newVideos.Count} new videos to download.");
                 foreach (var video in newVideos)
                 {
-                    await DownloadVideo(video.Url, channelName);
+                    await DownloadVideo(video.Url, channelName, downloadResolution);
                     processedVideoIds.Add(video.Id);
                 }
                 CacheUtils.SaveCache(channelName, settings.CachePath, processedVideoIds);
@@ -168,12 +173,14 @@ namespace TubePulse
             }
         }
 
-        private async Task DownloadVideo(string url, string channelName)
+        private async Task DownloadVideo(string url, string channelName, string downloadResolution)
         {
-            Console.WriteLine($"Downloading video: {url}");
+            Console.WriteLine($"Downloading video: {url} at resolution (downloadResolution)");
 
             var argumentList = new List<string>
             {
+                "-f",
+                $"\"bv*[height<={downloadResolution}]+ba/b[height<={downloadResolution}] / wv*+ba/w\"",
                 $"\"{url}\""
             };
 
