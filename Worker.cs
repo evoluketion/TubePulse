@@ -181,7 +181,9 @@ namespace TubePulse
             {
                 "-f",
                 $"\"bv*[height<={downloadResolution}]+ba/b[height<={downloadResolution}] / wv*+ba/w\"",
-                $"\"{url}\""
+                $"\"{url}\"",
+                "--write-thumbnail",
+                "--convert-thumbnails jpg"
             };
 
             Console.WriteLine($"Executing: yt-dlp {string.Join(" ", argumentList)}");
