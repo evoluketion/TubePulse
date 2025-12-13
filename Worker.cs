@@ -175,7 +175,7 @@ namespace TubePulse
 
         private async Task DownloadVideo(string url, string channelName, string downloadResolution)
         {
-            Console.WriteLine($"Downloading video: {url} at resolution (downloadResolution)");
+            Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p");
 
             var argumentList = new List<string>
             {
