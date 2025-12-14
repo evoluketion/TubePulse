@@ -43,6 +43,16 @@ namespace TubePulse
                 {
                     var channelName = channel.Name;
                     var channelUrl = channel.Url;
+
+                    Console.WriteLine($"Processing channel: {channelName}");
+                    
+                    if (!channel.Enabled)
+                    {
+                        Console.WriteLine($"Channel {channelName} is disabled. Skipping.");
+                        Console.WriteLine("---------------------------------------------------------\n");
+                        continue;
+                    }
+
                     if (channel.DownloadResolution != null )
                     {
                         defaultDownloadResolution = channel.DownloadResolution;

@@ -16,5 +16,6 @@ namespace TubePulse
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
         public string DownloadResolution {get; set; } = string.Empty;
+        public bool Enabled { get; set; } = true;
     }
 }
