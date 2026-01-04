@@ -15,9 +15,7 @@ TubePulse is a console app that runs as a hosted background service and **polls 
 ## Requirements
 
 - **.NET SDK 8.0**
-- **`yt-dlp` available on your PATH**
-  - Verify with:
-    - `yt-dlp --version`
+- **`yt-dlp`** is automatically downloaded and updated on startup (no manual installation required)
 
 ## Installation
 [![Windows](https://img.shields.io/badge/-Windows_x64-blue.svg?style=for-the-badge&logo=windows)](https://github.com/lukemcilia/TubePulse/releases/latest/download/TubePulse-windows-latest.zip)
@@ -82,14 +80,12 @@ dotnet build --configuration Release --output ./bin/Release
 
 ## Troubleshooting
 
-- **`yt-dlp` not found**
-  - Ensure `yt-dlp` is installed and available on PATH (`yt-dlp --version`).
 - **App prints: `DownloadPath and CachePath must be specified`**
   - Set `TubePulse:DownloadPath` and `TubePulse:CachePath` in `appsettings.json`.
 - **Nothing downloads on first run**
   - This is expected: the first run only caches existing videos so it starts downloading on *new* uploads going forward.
 - **Downloads failing for unknown reasons**
-  - Ensure yt-dlp is updated is it can stop working if too far out of date.
+  - TubePulse automatically updates yt-dlp on startup, but if issues persist, try deleting the yt-dlp binary from `~/.local/share/TubePulse/` (Linux) or `%LOCALAPPDATA%\TubePulse\` (Windows) to force a fresh download.
 
 ## Notes
 
