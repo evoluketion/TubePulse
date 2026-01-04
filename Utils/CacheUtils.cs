@@ -40,6 +40,7 @@ namespace TubePulse.Utils
             var cacheFile = GetCacheFilePath(channelName, cachePath);
             try
             {
+                Directory.CreateDirectory(cachePath);
                 string json = JsonSerializer.Serialize(processedVideoIds.ToList());
                 File.WriteAllText(cacheFile, json);
             }
