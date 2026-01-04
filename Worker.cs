@@ -17,6 +17,7 @@ namespace TubePulse
     {
         private HashSet<string> processedVideoIds;
         private readonly TubePulseSettings settings;
+        private string ytDlpPath;
 
         public Worker(IOptions<TubePulseSettings> options)
         {
@@ -25,6 +26,10 @@ namespace TubePulse
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Ensure yt-dlp is available (downloads if missing, then updates)
+            ytDlpPath = await YtDlpManager.EnsureYtDlpAsync();
+            await YtDlpManager.UpdateYtDlpAsync();
+
             await Task.Delay(5000); // Starting delay to offset application starting debug logs
             var channels = settings.Channels;
             var defaultDownloadResolution = settings.DownloadResolution;
@@ -137,7 +142,7 @@ namespace TubePulse
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = "yt-dlp",
+                FileName = ytDlpPath,
                 Arguments = string.Join(" ", argumentList),
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -203,7 +208,7 @@ namespace TubePulse
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = "yt-dlp",
+                FileName = ytDlpPath,
                 Arguments = string.Join(" ", argumentList),
                 RedirectStandardOutput = false,
                 RedirectStandardError = false,
