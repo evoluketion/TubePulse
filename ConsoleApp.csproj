@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>TubePulse</RootNamespace>
     <AssemblyName>TubePulse</AssemblyName>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
