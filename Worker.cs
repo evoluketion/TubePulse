@@ -32,7 +32,6 @@ namespace TubePulse
 
             await Task.Delay(5000); // Starting delay to offset application starting debug logs
             var channels = settings.Channels;
-            var defaultDownloadResolution = settings.DownloadResolution;
 
             if (!checkPathsSpecified(settings.DownloadPath, settings.CachePath))
             {
@@ -58,10 +57,7 @@ namespace TubePulse
                         continue;
                     }
 
-                    if (channel.DownloadResolution != null )
-                    {
-                        defaultDownloadResolution = channel.DownloadResolution;
-                    };
+                    var resolution = string.IsNullOrEmpty(channel.DownloadResolution) ? settings.DownloadResolution : channel.DownloadResolution;
 
                     processedVideoIds = CacheUtils.LoadCache(channelName, settings.CachePath);
                     bool isFirstRun = processedVideoIds.Count == 0;
@@ -76,7 +72,7 @@ namespace TubePulse
                         Console.WriteLine($"Loaded {processedVideoIds.Count} cached video IDs for channel {channelName}.");
                     }
 
-                    await CheckAndDownloadNewVideos(channel.Url, channel.Name, defaultDownloadResolution);
+                    await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution);
                 }
 
                 Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.PollingTimeoutHours} hours before next check...");
