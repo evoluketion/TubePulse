@@ -8,6 +8,7 @@
     <RootNamespace>TubePulse</RootNamespace>
     <AssemblyName>TubePulse</AssemblyName>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <ItemGroup>

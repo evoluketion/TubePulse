@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace TubePulse
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
+            Console.Title = $"TubePulse v{version}";
             try
             {
                 // Ensure yt-dlp is available (downloads if missing, then updates)
