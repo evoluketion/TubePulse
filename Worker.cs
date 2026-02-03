@@ -69,6 +69,7 @@ namespace TubePulse
                         }
 
                         var resolution = string.IsNullOrEmpty(channel.DownloadResolution) ? settings.DownloadResolution : channel.DownloadResolution;
+                        var vCodec = string.IsNullOrEmpty(channel.DownloadCodec) ? settings.DownloadCodec : channel.DownloadCodec;
 
                         processedVideoIds = CacheUtils.LoadCache(channelName, settings.CachePath);
                         bool isFirstRun = processedVideoIds.Count == 0;
@@ -83,7 +84,7 @@ namespace TubePulse
                             Console.WriteLine($"Loaded {processedVideoIds.Count} cached video IDs for channel {channelName}.");
                         }
 
-                        await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution, stoppingToken);
+                        await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution, vCodec, stoppingToken);
                     }
 
                     if (!stoppingToken.IsCancellationRequested)
@@ -125,7 +126,7 @@ namespace TubePulse
             Console.WriteLine($"Cached {processedVideoIds.Count} video IDs for channel.");
         }
 
-        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution, CancellationToken cancellationToken)
+        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution, string downloadCodec, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Checking for new videos for: {channelUrl}");
             var recentVideos = await GetVideos(channelUrl, "today-1day", cancellationToken);
@@ -143,7 +144,7 @@ namespace TubePulse
                         cancellationToken.ThrowIfCancellationRequested();
                     }
 
-                    await DownloadVideo(video.Url, channelName, downloadResolution, cancellationToken);
+                    await DownloadVideo(video.Url, channelName, downloadResolution, downloadCodec, cancellationToken);
                     processedVideoIds.Add(video.Id);
                     CacheUtils.SaveCache(channelName, settings.CachePath, processedVideoIds);
                 }
@@ -236,14 +237,14 @@ namespace TubePulse
             }
         }
 
-        private async Task DownloadVideo(string url, string channelName, string downloadResolution, CancellationToken cancellationToken)
+        private async Task DownloadVideo(string url, string channelName, string downloadResolution, string downloadCodec, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p");
+            Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p, video codec {downloadCodec}");
 
             var argumentList = new List<string>
             {
                 "-f",
-                $"\"bv*[height<={downloadResolution}]+ba/b[height<={downloadResolution}] / wv*+ba/w\"",
+                $"\"bv*[height<={downloadResolution}][vcodec^={downloadCodec}]+ba/b[height<={downloadResolution}] / wv*+ba/w\"",
                 $"\"{url}\"",
                 "--write-thumbnail",
                 "--convert-thumbnails jpg"

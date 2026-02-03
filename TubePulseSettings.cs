@@ -9,6 +9,7 @@ namespace TubePulse
         public string CachePath { get; set; } = string.Empty;
         public int PollingTimeoutHours { get; set; } = 1;
         public string DownloadResolution {get; set; } = string.Empty;
+        public string DownloadCodec {get; set; } = string.Empty;
     }
 
     public class Channel
@@ -16,6 +17,7 @@ namespace TubePulse
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
         public string DownloadResolution {get; set; } = string.Empty;
+        public string DownloadCodec {get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
     }
 }

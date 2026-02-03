@@ -36,10 +36,12 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
       {
         "Name": "Google",
         "Url": "https://www.youtube.com/@Google",
-        "DownloadResolution": "1080"
+        "DownloadResolution": "1080",
+        "DownloadCodec": "vp9"
       }
     ],
     "DownloadPath": "C:/Users/<you>/Videos/TubePulse",
+    "DownloadCodec": "h264",
     "CachePath": "C:/Users/<you>/Videos/TubePulse/Cache",
     "PollingTimeoutHours": 1,
     "DownloadResolution": "720"
@@ -53,12 +55,14 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
   - **`Name`**: Used for the per-channel download folder name and cache file name.
   - **`Url`**: Channel URL (e.g. `https://www.youtube.com/@SomeChannel`).
   - **`DownloadResolution`**: Optional override (string number like `720`, `1080`, `2160`).
+  - **`DownloadCodec`**: Optional override (e.g. `av01`, `vp9`, `h265`, `h264`). See [yt-dlp formats](https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#sorting-formats) for usable examples.
 - **`TubePulse:DownloadPath`**: Root directory where videos are downloaded.
   - Downloads land in: `DownloadPath/<ChannelName>/`
 - **`TubePulse:CachePath`**: Directory where cache JSON files are stored.
   - Cache filename pattern: `videoCache_<ChannelName>.json`
 - **`TubePulse:PollingTimeoutHours`**: How long to wait between checks.
 - **`TubePulse:DownloadResolution`**: Default resolution used when a channel doesn’t specify one.
+- **`TubePulse:DownloadCodec`**: Default codec used when a channel doesn’t specify one (e.g. `av01`, `vp9`, `h265`, `h264`). See [yt-dlp formats](https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#sorting-formats) for usable examples.
 
 ## Running
 
