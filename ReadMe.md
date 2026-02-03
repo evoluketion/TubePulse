@@ -4,6 +4,8 @@
 [![Commits](https://img.shields.io/github/commit-activity/m/yt-dlp/yt-dlp?label=commits&style=for-the-badge)](https://github.com/lukemcilia/TubePulse/commits "Commit History")
 
 TubePulse is a console app that runs as a hosted background service and **polls one or more YouTube channels** for newly uploaded videos. It uses **`yt-dlp`** to fetch a channel’s recent uploads, keeps a **per-channel cache** of already-seen video IDs, and downloads any newly detected videos into a per-channel folder.
+<img width="1299" height="598" alt="image" src="https://github.com/user-attachments/assets/64a56129-0966-41d1-a42c-be0a3e2339cb" />
+
 
 ## Features
 
