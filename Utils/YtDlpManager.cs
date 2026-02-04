@@ -11,20 +11,27 @@ namespace TubePulse.Utils
     {
         private static readonly HttpClient HttpClient = new();
 
-        public static async Task<string> EnsureYtDlpAsync()
+        public static async Task<string> EnsureYtDlpAsync(bool useNightlies = false)
         {
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             string baseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TubePulse");
-            string ytDlpPath = Path.Combine(baseDir, isWindows ? "yt-dlp.exe" : "yt-dlp");
+            string filename = useNightlies
+                ? (isWindows ? "yt-dlp-nightly.exe" : "yt-dlp-nightly")
+                : (isWindows ? "yt-dlp.exe" : "yt-dlp");
+            string ytDlpPath = Path.Combine(baseDir, filename);
 
             if (!File.Exists(ytDlpPath))
             {
-                Console.WriteLine("yt-dlp not found. Downloading...");
+                Console.WriteLine($"\nyt-dlp not found. Downloading {(useNightlies ? "nightly" : "stable")} build...");
                 Directory.CreateDirectory(baseDir);
                 
+                string baseUrl = useNightlies
+                    ? "https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download"
+                    : "https://github.com/yt-dlp/yt-dlp/releases/latest/download";
+                
                 string url = isWindows
-                    ? "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
-                    : "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp";
+                    ? $"{baseUrl}/yt-dlp.exe"
+                    : $"{baseUrl}/yt-dlp";
 
                 var bytes = await HttpClient.GetByteArrayAsync(url);
                 await File.WriteAllBytesAsync(ytDlpPath, bytes);
@@ -38,10 +45,10 @@ namespace TubePulse.Utils
             return ytDlpPath;
         }
 
-        public static async Task UpdateYtDlpAsync()
+        public static async Task UpdateYtDlpAsync(bool useNightlies = false)
         {
-            var ytDlpPath = await EnsureYtDlpAsync();
-            Console.WriteLine("Updating yt-dlp...");
+            var ytDlpPath = await EnsureYtDlpAsync(useNightlies);
+            Console.WriteLine($"\nUpdating yt-dlp ({(useNightlies ? "nightly" : "stable")})...");
 
             var process = Process.Start(new ProcessStartInfo
             {
