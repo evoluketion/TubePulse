@@ -9,6 +9,8 @@ namespace TubePulse
         public string CachePath { get; set; } = string.Empty;
         public int PollingTimeoutHours { get; set; } = 1;
         public string DownloadResolution {get; set; } = string.Empty;
+        public int SleepInterval { get; set; } = 6;
+        public int MaxSleepInterval { get; set; } = 0;
     }
 
     public class Channel
