@@ -44,8 +44,7 @@ namespace TubePulse
                     return;
                 }
 
-                Console.WriteLine("\nBeginning Processing.");
-                Console.WriteLine("---------------------------------------------------------\n");
+                Console.WriteLine("\nBeginning Processing.\n");
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     foreach (Channel channel in channels)
@@ -59,12 +58,12 @@ namespace TubePulse
                         var channelName = channel.Name;
                         var channelUrl = channel.Url;
 
+                        Console.WriteLine("---------------------------------------------------------");
                         Console.WriteLine($"Processing channel: {channelName}");
                         
                         if (!channel.Enabled)
                         {
                             Console.WriteLine($"Channel {channelName} is disabled. Skipping.");
-                            Console.WriteLine("---------------------------------------------------------\n");
                             continue;
                         }
 
@@ -88,7 +87,8 @@ namespace TubePulse
 
                     if (!stoppingToken.IsCancellationRequested)
                     {
-                        Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.PollingTimeoutHours} hours before next check...");
+                        Console.WriteLine("---------------------------------------------------------\n");
+                        Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.PollingTimeoutHours} hours before next check...\n");
                         await Task.Delay(TimeSpan.FromHours(settings.PollingTimeoutHours), stoppingToken);
                     }
                 }
@@ -133,7 +133,7 @@ namespace TubePulse
 
             if (newVideos.Any())
             {
-                Console.WriteLine($"Found {newVideos.Count} new videos to download.");
+                Console.WriteLine($"Found {newVideos.Count} new videos to download.\n");
                 foreach (var video in newVideos)
                 {
                     if (cancellationToken.IsCancellationRequested)
@@ -151,7 +151,6 @@ namespace TubePulse
             else
             {
                 Console.WriteLine("No new videos found.");
-                Console.WriteLine("---------------------------------------------------------\n");
             }
         }
 
@@ -238,8 +237,12 @@ namespace TubePulse
 
         private async Task DownloadVideo(string url, string channelName, string downloadResolution, CancellationToken cancellationToken)
         {
-            Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p");
+            Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p.");
 
+            var (sleepParams, sleepLog) = GetSleepParameters();
+            if (!string.IsNullOrEmpty(sleepLog))
+                Console.WriteLine(sleepLog);
+            
             var argumentList = new List<string>
             {
                 "-f",
@@ -248,6 +251,9 @@ namespace TubePulse
                 "--write-thumbnail",
                 "--convert-thumbnails jpg"
             };
+            
+            if (!string.IsNullOrEmpty(sleepParams))
+                argumentList.Add(sleepParams);
 
             Console.WriteLine($"Executing: yt-dlp {string.Join(" ", argumentList)}");
 
@@ -291,8 +297,7 @@ namespace TubePulse
 
                     if (process.ExitCode == 0)
                     {
-                        Console.WriteLine("Download completed successfully.");
-                        Console.WriteLine("---------------------------------------------------------");
+                        Console.WriteLine("Download completed successfully.\n");
                     }
                     else
                     {
@@ -305,6 +310,20 @@ namespace TubePulse
                     throw;
                 }
             }
+        }
+
+        private (string Params, string LogMessage) GetSleepParameters()
+        {
+            var min = settings.SleepInterval;
+            var max = settings.MaxSleepInterval;
+            
+            if (min == 0 && max == 0)
+                return (string.Empty, string.Empty);
+            
+            if (max > min)
+                return ($"--sleep-interval {min} --max-sleep-interval {max}", $"Randomly sleeping between {min}-{max} seconds to avoid rate limiting.");
+            
+            return ($"--sleep-interval {min}", $"Sleeping for {min} seconds between downloads to avoid rate limiting.");
         }
     }
 }
