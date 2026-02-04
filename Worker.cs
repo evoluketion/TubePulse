@@ -93,6 +93,9 @@ namespace TubePulse
                         Console.WriteLine("---------------------------------------------------------\n");
                         Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.PollingTimeoutHours} hours before next check...\n");
                         await Task.Delay(TimeSpan.FromHours(settings.PollingTimeoutHours), stoppingToken);
+
+                        // Check for yt-dlp updates before next polling cycle
+                        await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
                     }
                 }
             }

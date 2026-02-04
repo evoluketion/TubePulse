@@ -48,7 +48,7 @@ namespace TubePulse.Utils
         public static async Task UpdateYtDlpAsync(bool useNightlies = false)
         {
             var ytDlpPath = await EnsureYtDlpAsync(useNightlies);
-            Console.WriteLine($"\nUpdating yt-dlp ({(useNightlies ? "nightly" : "stable")})...");
+            Console.WriteLine($"\nChecking for updates for yt-dlp ({(useNightlies ? "nightly" : "stable")})...");
 
             var process = Process.Start(new ProcessStartInfo
             {
