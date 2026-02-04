@@ -45,7 +45,8 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
     "PollingTimeoutHours": 1,
     "DownloadResolution": "720",
     "SleepInterval": 6,
-    "MaxSleepInterval": 12
+    "MaxSleepInterval": 12,
+    "YtDlpNightlies": false
   }
 }
 ```
@@ -65,6 +66,7 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
 - **`TubePulse:DownloadResolution`**: Default resolution used when a channel doesn’t specify one.
 - **`TubePulse:SleepInterval`**: Minimum seconds to wait between video downloads to avoid rate limiting.
 - **`TubePulse:MaxSleepInterval`**: Maximum seconds for random sleep range. If greater than `SleepInterval`, a random delay between the two values is used. Set both to `0` to disable sleep.
+- **`TubePulse:YtDlpNightlies`**: Set to `true` to use yt-dlp nightly builds instead of stable releases. Nightly builds are stored separately (`yt-dlp-nightly.exe`) so you can switch without overwriting.
 
 ## Running
 

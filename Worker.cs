@@ -31,9 +31,12 @@ namespace TubePulse
             Console.Title = $"TubePulse v{version}";
             try
             {
+                // Brief delay to let host startup logs appear first
+                await Task.Delay(100, stoppingToken);
+
                 // Ensure yt-dlp is available (downloads if missing, then updates)
-                ytDlpPath = await YtDlpManager.EnsureYtDlpAsync();
-                await YtDlpManager.UpdateYtDlpAsync();
+                ytDlpPath = await YtDlpManager.EnsureYtDlpAsync(settings.YtDlpNightlies);
+                await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
 
                 await Task.Delay(5000, stoppingToken);
                 var channels = settings.Channels;
