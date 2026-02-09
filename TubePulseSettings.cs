@@ -12,6 +12,7 @@ namespace TubePulse
         public int SleepInterval { get; set; } = 6;
         public int MaxSleepInterval { get; set; } = 0;
         public bool YtDlpNightlies { get; set; } = false;
+        public bool Headless { get; set; } = false;
     }
 
     public class Channel

@@ -28,7 +28,7 @@ namespace TubePulse
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
-            Console.Title = $"TubePulse v{version}";
+            try { Console.Title = $"TubePulse v{version}"; } catch { }
             try
             {
                 // Brief delay to let host startup logs appear first
