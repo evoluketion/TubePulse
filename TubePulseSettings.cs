@@ -7,7 +7,7 @@ namespace TubePulse
         public List<Channel> Channels { get; set; } = new List<Channel>();
         public string DownloadPath { get; set; } = string.Empty;
         public string CachePath { get; set; } = string.Empty;
-        public int PollingTimeoutHours { get; set; } = 1;
+        public decimal PollingTimeoutHours { get; set; } = 1;
         public string DownloadResolution {get; set; } = string.Empty;
         public int SleepInterval { get; set; } = 6;
         public int MaxSleepInterval { get; set; } = 0;

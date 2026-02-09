@@ -90,9 +90,7 @@ namespace TubePulse
 
                     if (!stoppingToken.IsCancellationRequested)
                     {
-                        Console.WriteLine("---------------------------------------------------------\n");
-                        Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {settings.PollingTimeoutHours} hours before next check...\n");
-                        await Task.Delay(TimeSpan.FromHours(settings.PollingTimeoutHours), stoppingToken);
+                        await AwaitPollingTimeout(stoppingToken);
 
                         // Check for yt-dlp updates before next polling cycle
                         await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
@@ -114,6 +112,25 @@ namespace TubePulse
             }
         }
 
+        private async Task AwaitPollingTimeout(CancellationToken stoppingToken)
+        {
+            var pollingTimeoutHours = settings.PollingTimeoutHours;
+            var totalMinutes = pollingTimeoutHours * 60;
+            var totalSeconds = totalMinutes * 60;
+
+            string displayText;
+            if (pollingTimeoutHours >= 1)
+                displayText = $"{pollingTimeoutHours} hour(s)";
+            else if (totalMinutes >= 1)
+                displayText = $"{(double)Math.Round(totalMinutes, 2)} minute(s)";
+            else
+                displayText = $"{(double)Math.Round(totalSeconds, 2)} second(s)";
+
+            Console.WriteLine("---------------------------------------------------------\n");
+            Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {displayText} before next check...\n");
+            await Task.Delay(TimeSpan.FromHours((double)pollingTimeoutHours), stoppingToken);
+        }
+        
         private static bool checkPathsSpecified(string downloadPath, string cachePath)
         {
             return !string.IsNullOrWhiteSpace(downloadPath) && !string.IsNullOrWhiteSpace(cachePath);

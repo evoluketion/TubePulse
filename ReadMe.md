@@ -62,7 +62,7 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
   - Downloads land in: `DownloadPath/<ChannelName>/`
 - **`TubePulse:CachePath`**: Directory where cache JSON files are stored.
   - Cache filename pattern: `videoCache_<ChannelName>.json`
-- **`TubePulse:PollingTimeoutHours`**: How long to wait between checks.
+- **`TubePulse:PollingTimeoutHours`**: How long to wait between checks. Supports decimal values (e.g. `0.5` for 30 minutes, `0.25` for 15 minutes).
 - **`TubePulse:DownloadResolution`**: Default resolution used when a channel doesn’t specify one.
 - **`TubePulse:SleepInterval`**: Minimum seconds to wait between video downloads to avoid rate limiting.
 - **`TubePulse:MaxSleepInterval`**: Maximum seconds for random sleep range. If greater than `SleepInterval`, a random delay between the two values is used. Set both to `0` to disable sleep.
