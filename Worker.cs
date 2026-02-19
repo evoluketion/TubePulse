@@ -240,7 +240,7 @@ namespace TubePulse
                     try
                     {
                         var video = JsonSerializer.Deserialize<YoutubeVideo>(line, serializer);
-                        if (video != null) videos.Add(video);
+                        if (video != null && video.Duration != null) videos.Add(video);
                     }
                     catch
                     {
