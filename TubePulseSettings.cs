@@ -8,6 +8,7 @@ namespace TubePulse
         public string DownloadPath { get; set; } = string.Empty;
         public string CachePath { get; set; } = string.Empty;
         public decimal PollingTimeoutHours { get; set; } = 1;
+        public decimal PollingTimeoutMinutes { get; set; } = 0;
         public string DownloadResolution {get; set; } = string.Empty;
         public int SleepInterval { get; set; } = 6;
         public int MaxSleepInterval { get; set; } = 0;

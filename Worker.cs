@@ -115,20 +115,32 @@ namespace TubePulse
         private async Task AwaitPollingTimeout(CancellationToken stoppingToken)
         {
             var pollingTimeoutHours = settings.PollingTimeoutHours;
-            var totalMinutes = pollingTimeoutHours * 60;
+            var pollingTimeoutMinutes = settings.PollingTimeoutMinutes;
+
+            var totalMinutes = (pollingTimeoutHours * 60) + pollingTimeoutMinutes;
             var totalSeconds = totalMinutes * 60;
 
-            string displayText;
+            var displayText = string.Empty;
             if (pollingTimeoutHours >= 1)
+            {
                 displayText = $"{pollingTimeoutHours} hour(s)";
+                if (pollingTimeoutMinutes > 0)
+                {
+                    displayText += $" and {pollingTimeoutMinutes} minute(s)";
+                }
+            }
             else if (totalMinutes >= 1)
+            {
                 displayText = $"{(double)Math.Round(totalMinutes, 2)} minute(s)";
+            }
             else
+            {
                 displayText = $"{(double)Math.Round(totalSeconds, 2)} second(s)";
+            }
 
             Console.WriteLine("---------------------------------------------------------\n");
             Console.WriteLine($"Completed at: {DateTime.Now.ToString("hh:mm:ss")} - Waiting {displayText} before next check...\n");
-            await Task.Delay(TimeSpan.FromHours((double)pollingTimeoutHours), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes((double)totalMinutes), stoppingToken);
         }
         
         private static bool checkPathsSpecified(string downloadPath, string cachePath)
