@@ -35,8 +35,7 @@ namespace TubePulse
                 await Task.Delay(100, stoppingToken);
 
                 // Ensure yt-dlp is available (downloads if missing, then updates)
-                ytDlpPath = await YtDlpManager.EnsureYtDlpAsync(settings.YtDlpNightlies);
-                await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
+                ytDlpPath = await YtDlpManager.VerifyDependencies(settings.YtDlpNightlies);
 
                 await Task.Delay(5000, stoppingToken);
                 var channels = settings.Channels;
@@ -93,7 +92,7 @@ namespace TubePulse
                         await AwaitPollingTimeout(stoppingToken);
 
                         // Check for yt-dlp updates before next polling cycle
-                        await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
+                        await YtDlpManager.VerifyDependencies(settings.YtDlpNightlies);
                     }
                 }
             }
