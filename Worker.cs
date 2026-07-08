@@ -69,8 +69,9 @@ namespace TubePulse
                             continue;
                         }
 
-                        var resolution = string.IsNullOrEmpty(channel.DownloadResolution) ? settings.DownloadResolution : channel.DownloadResolution;
-                        var audioFormat = string.IsNullOrEmpty(channel.AudioFormat) ? settings.AudioFormat : channel.AudioFormat;
+                        var resolution = channel.DownloadResolution ?? settings.DownloadResolution;
+                        var audioFormat = channel.AudioFormat ?? settings.AudioFormat;
+                        var writeThumbnail = channel.WriteThumbnail ?? settings.WriteThumbnail;
 
                         processedVideoIds = CacheUtils.LoadCache(channelName, settings.CachePath);
                         bool isFirstRun = processedVideoIds.Count == 0;
@@ -85,7 +86,7 @@ namespace TubePulse
                             Console.WriteLine($"Loaded {processedVideoIds.Count} cached video IDs for channel {channelName}.");
                         }
 
-                        await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution, channel.AudioOnly, audioFormat, stoppingToken);
+                        await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution, channel.AudioOnly, audioFormat, writeThumbnail, stoppingToken);
                     }
 
                     if (!stoppingToken.IsCancellationRequested)
@@ -160,7 +161,7 @@ namespace TubePulse
             Console.WriteLine($"Cached {processedVideoIds.Count} video IDs for channel.");
         }
 
-        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution, bool audioOnly, string audioFormat, CancellationToken cancellationToken)
+        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution, bool audioOnly, string audioFormat, bool writeThumbnail, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Checking for new videos for: {channelUrl}");
             var recentVideos = await GetVideos(channelUrl, "today-1day", cancellationToken);
@@ -179,11 +180,11 @@ namespace TubePulse
                     }
                     if (audioOnly)
                     {
-                        await DownloadAudio(video.Url, channelName, audioFormat, cancellationToken);
+                        await DownloadAudio(video.Url, channelName, audioFormat, writeThumbnail, cancellationToken);
                     }
                     else
                     {
-                        await DownloadVideo(video.Url, channelName, downloadResolution, cancellationToken);
+                        await DownloadVideo(video.Url, channelName, downloadResolution, writeThumbnail, cancellationToken);
                     }
                     
                     processedVideoIds.Add(video.Id);
@@ -277,7 +278,7 @@ namespace TubePulse
             }
         }
 
-        private async Task DownloadVideo(string url, string channelName, string downloadResolution, CancellationToken cancellationToken)
+        private async Task DownloadVideo(string url, string channelName, string downloadResolution, bool writeThumbnail, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p.");
             
@@ -285,15 +286,19 @@ namespace TubePulse
             {
                 "-f",
                 $"\"bv*[height<={downloadResolution}]+ba/b[height<={downloadResolution}] / wv*+ba/w\"",
-                $"\"{url}\"",
-                "--write-thumbnail",
-                "--convert-thumbnails jpg"
+                $"\"{url}\""
             };
+
+            if (writeThumbnail)
+            {
+                argumentList.Add("--write-thumbnail");
+                argumentList.Add("--convert-thumbnails jpg");
+            }
             
             await ProcessYtDlpArguments(argumentList, channelName, cancellationToken);
         }
 
-        private async Task DownloadAudio(string url, string channelName, string fileType, CancellationToken cancellationToken)
+        private async Task DownloadAudio(string url, string channelName, string fileType, bool writeThumbnail, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Downloading audio: {url} of file type {fileType}.");
             
@@ -301,10 +306,14 @@ namespace TubePulse
             {
                 "-x",
                 $"--audio-format {fileType}",
-                $"\"{url}\"",
-                "--write-thumbnail",
-                "--convert-thumbnails jpg"
+                $"\"{url}\""
             };
+
+            if (writeThumbnail)
+            {
+                argumentList.Add("--write-thumbnail");
+                argumentList.Add("--convert-thumbnails jpg");
+            }
             
             await ProcessYtDlpArguments(argumentList, channelName, cancellationToken);
         }
