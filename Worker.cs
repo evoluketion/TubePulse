@@ -35,8 +35,7 @@ namespace TubePulse
                 await Task.Delay(100, stoppingToken);
 
                 // Ensure yt-dlp is available (downloads if missing, then updates)
-                ytDlpPath = await YtDlpManager.EnsureYtDlpAsync(settings.YtDlpNightlies);
-                await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
+                ytDlpPath = await YtDlpManager.VerifyDependencies(settings.YtDlpNightlies);
 
                 await Task.Delay(5000, stoppingToken);
                 var channels = settings.Channels;
@@ -70,7 +69,9 @@ namespace TubePulse
                             continue;
                         }
 
-                        var resolution = string.IsNullOrEmpty(channel.DownloadResolution) ? settings.DownloadResolution : channel.DownloadResolution;
+                        var resolution = channel.DownloadResolution ?? settings.DownloadResolution;
+                        var audioFormat = channel.AudioFormat ?? settings.AudioFormat;
+                        var writeThumbnail = channel.WriteThumbnail ?? settings.WriteThumbnail;
 
                         processedVideoIds = CacheUtils.LoadCache(channelName, settings.CachePath);
                         bool isFirstRun = processedVideoIds.Count == 0;
@@ -85,7 +86,7 @@ namespace TubePulse
                             Console.WriteLine($"Loaded {processedVideoIds.Count} cached video IDs for channel {channelName}.");
                         }
 
-                        await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution, stoppingToken);
+                        await CheckAndDownloadNewVideos(channel.Url, channel.Name, resolution, channel.AudioOnly, audioFormat, writeThumbnail, stoppingToken);
                     }
 
                     if (!stoppingToken.IsCancellationRequested)
@@ -93,7 +94,7 @@ namespace TubePulse
                         await AwaitPollingTimeout(stoppingToken);
 
                         // Check for yt-dlp updates before next polling cycle
-                        await YtDlpManager.UpdateYtDlpAsync(settings.YtDlpNightlies);
+                        await YtDlpManager.VerifyDependencies(settings.YtDlpNightlies);
                     }
                 }
             }
@@ -160,7 +161,7 @@ namespace TubePulse
             Console.WriteLine($"Cached {processedVideoIds.Count} video IDs for channel.");
         }
 
-        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution, CancellationToken cancellationToken)
+        private async Task CheckAndDownloadNewVideos(string channelUrl, string channelName, string downloadResolution, bool audioOnly, string audioFormat, bool writeThumbnail, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Checking for new videos for: {channelUrl}");
             var recentVideos = await GetVideos(channelUrl, "today-1day", cancellationToken);
@@ -177,8 +178,15 @@ namespace TubePulse
                         CacheUtils.SaveCache(channelName, settings.CachePath, processedVideoIds);
                         cancellationToken.ThrowIfCancellationRequested();
                     }
-
-                    await DownloadVideo(video.Url, channelName, downloadResolution, cancellationToken);
+                    if (audioOnly)
+                    {
+                        await DownloadAudio(video.Url, channelName, audioFormat, writeThumbnail, cancellationToken);
+                    }
+                    else
+                    {
+                        await DownloadVideo(video.Url, channelName, downloadResolution, writeThumbnail, cancellationToken);
+                    }
+                    
                     processedVideoIds.Add(video.Id);
                     CacheUtils.SaveCache(channelName, settings.CachePath, processedVideoIds);
                 }
@@ -270,23 +278,52 @@ namespace TubePulse
             }
         }
 
-        private async Task DownloadVideo(string url, string channelName, string downloadResolution, CancellationToken cancellationToken)
+        private async Task DownloadVideo(string url, string channelName, string downloadResolution, bool writeThumbnail, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Downloading video: {url} at resolution {downloadResolution}p.");
-
-            var (sleepParams, sleepLog) = GetSleepParameters();
-            if (!string.IsNullOrEmpty(sleepLog))
-                Console.WriteLine(sleepLog);
             
             var argumentList = new List<string>
             {
                 "-f",
                 $"\"bv*[height<={downloadResolution}]+ba/b[height<={downloadResolution}] / wv*+ba/w\"",
-                $"\"{url}\"",
-                "--write-thumbnail",
-                "--convert-thumbnails jpg"
+                $"\"{url}\""
             };
+
+            if (writeThumbnail)
+            {
+                argumentList.Add("--write-thumbnail");
+                argumentList.Add("--convert-thumbnails jpg");
+            }
             
+            await ProcessYtDlpArguments(argumentList, channelName, cancellationToken);
+        }
+
+        private async Task DownloadAudio(string url, string channelName, string fileType, bool writeThumbnail, CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Downloading audio: {url} of file type {fileType}.");
+            
+            var argumentList = new List<string>
+            {
+                "-x",
+                $"--audio-format {fileType}",
+                $"\"{url}\""
+            };
+
+            if (writeThumbnail)
+            {
+                argumentList.Add("--write-thumbnail");
+                argumentList.Add("--convert-thumbnails jpg");
+            }
+            
+            await ProcessYtDlpArguments(argumentList, channelName, cancellationToken);
+        }
+
+        private async Task ProcessYtDlpArguments(List<string> argumentList, string channelName, CancellationToken cancellationToken)
+        {
+            var (sleepParams, sleepLog) = GetSleepParameters();
+            if (!string.IsNullOrEmpty(sleepLog))
+                Console.WriteLine(sleepLog);
+
             if (!string.IsNullOrEmpty(sleepParams))
                 argumentList.Add(sleepParams);
 
@@ -299,8 +336,8 @@ namespace TubePulse
             {
                 FileName = ytDlpPath,
                 Arguments = string.Join(" ", argumentList),
-                RedirectStandardOutput = false,
-                RedirectStandardError = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = downloadPath

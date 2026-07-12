@@ -10,6 +10,8 @@ namespace TubePulse
         public decimal PollingTimeoutHours { get; set; } = 1;
         public decimal PollingTimeoutMinutes { get; set; } = 0;
         public string DownloadResolution {get; set; } = string.Empty;
+        public string AudioFormat { get; set; } = "wav";
+        public bool WriteThumbnail { get; set; } = true;
         public int SleepInterval { get; set; } = 6;
         public int MaxSleepInterval { get; set; } = 0;
         public bool YtDlpNightlies { get; set; } = false;
@@ -20,7 +22,10 @@ namespace TubePulse
     {
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
-        public string DownloadResolution {get; set; } = string.Empty;
+        public string? DownloadResolution { get; set; }
+        public bool AudioOnly { get; set; } = false;
+        public string? AudioFormat { get; set; }
+        public bool? WriteThumbnail { get; set; }
         public bool Enabled { get; set; } = true;
     }
 }

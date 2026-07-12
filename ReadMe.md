@@ -18,6 +18,7 @@ TubePulse is a console app that runs as a hosted background service and **polls 
 
 - **.NET SDK 8.0**
 - **`yt-dlp`** is automatically downloaded and updated on startup (no manual installation required)
+- **`FFmpeg`** Download from https://www.ffmpeg.org/download.html
 
 ## Installation
 [![Windows](https://img.shields.io/badge/-Windows_x64-blue.svg?style=for-the-badge&logo=windows)](https://github.com/lukemcilia/TubePulse/releases/latest/download/TubePulse-windows-latest.zip)
@@ -35,8 +36,16 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
     "Channels": [
       {
         "Name": "Google",
-        "Url": "https://www.youtube.com/@Google",
+        "Url": "https://www.youtube.com/google",
         "DownloadResolution": "1080",
+        "Enabled": true
+      },
+      {
+        "Name": "NoCopyrightSounds",
+        "Url": "https://www.youtube.com/nocopyrightsounds",
+        "AudioOnly": true,
+        "AudioFormat": "mp3",
+        "WriteThumbnail": false,
         "Enabled": true
       }
     ],
@@ -45,6 +54,8 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
     "PollingTimeoutHours": 1,
     "PollingTimeoutMinutes": 15,
     "DownloadResolution": "720",
+    "AudioFileFormat": "wav",
+    "WriteThumbnails": true,
     "SleepInterval": 6,
     "MaxSleepInterval": 12,
     "YtDlpNightlies": false
@@ -58,6 +69,9 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
   - **`Name`**: Used for the per-channel download folder name and cache file name.
   - **`Url`**: Channel URL (e.g. `https://www.youtube.com/@SomeChannel`).
   - **`DownloadResolution`**: Optional override (string number like `720`, `1080`, `2160`).
+  - **`AudioOnly`**: Specify if channel downloads should be an audio only download format. Will use the global `TubePulse:AudioFileFormat` unless file format is overridden at the channel level.
+  - **`AudioFileFormat`**: Optional audio file format override.
+  - **`WriteThumbnails`**: Optional override to write thumbnails or not.
   - **`Enabled`**: Set to `false` to skip this channel during polling (default: `true`).
 - **`TubePulse:DownloadPath`**: Root directory where videos are downloaded.
   - Downloads land in: `DownloadPath/<ChannelName>/`
@@ -66,6 +80,8 @@ TubePulse reads settings from `appsettings.json` under the `TubePulse` section.
 - **`TubePulse:PollingTimeoutHours`**: How many hours to wait between checks.
 - **`TubePulse:PollingTimeoutMinutes`**: How many minutes to wait between checks.
 - **`TubePulse:DownloadResolution`**: Default resolution used when a channel doesn’t specify one.
+- **`TubePulse:AudioFileFormat`**: Default audio file format used when `TubePulse:Channels:AudioOnly` is enabled and a channel doesn't specify one.
+- **`TubePulse:WriteThumbnails`**: Default selection for writing thumbnails for when a channel doesn't specify to.
 - **`TubePulse:SleepInterval`**: Minimum seconds to wait between video downloads to avoid rate limiting.
 - **`TubePulse:MaxSleepInterval`**: Maximum seconds for random sleep range. If greater than `SleepInterval`, a random delay between the two values is used. Set both to `0` to disable sleep.
 - **`TubePulse:YtDlpNightlies`**: Set to `true` to use yt-dlp nightly builds instead of stable releases. Nightly builds are stored separately (`yt-dlp-nightly.exe`) so you can switch without overwriting.
@@ -99,6 +115,8 @@ dotnet build --configuration Release --output ./bin/Release
   - This is expected: the first run only caches existing videos so it starts downloading on *new* uploads going forward.
 - **Downloads failing for unknown reasons**
   - TubePulse automatically updates yt-dlp on startup, but if issues persist, try deleting the yt-dlp binary from `~/.local/share/TubePulse/` (Linux) or `%LOCALAPPDATA%\TubePulse\` (Windows) to force a fresh download.
+- **App prints: `FFmpeg is not available`**
+  - FFmpeg must be installed for the cases where audio options are selected for downloading media. You can download and see intructions on this on the official FFmpeg website at [ffmpeg.org](https://ffmpeg.org/download.html)
 
 ## Notes
 
