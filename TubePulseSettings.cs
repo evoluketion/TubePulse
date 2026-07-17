@@ -23,6 +23,7 @@ namespace TubePulse
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
         public string? DownloadResolution { get; set; }
+        public string? DownloadPath { get; set; }
         public bool AudioOnly { get; set; } = false;
         public string? AudioFormat { get; set; }
         public bool? WriteThumbnail { get; set; }
